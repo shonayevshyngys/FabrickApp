@@ -12,6 +12,7 @@ import com.github.fabrickapp.dtos.fabrickdtos.reqres.transaction.TransactionDTO;
 import com.github.fabrickapp.service.ITransferService;
 import com.github.fabrickapp.service.validators.DateValidator;
 import com.github.fabrickapp.service.validators.TransferValidator;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatusCode;
@@ -44,6 +45,7 @@ public class FabrickController {
     }
 
     @GetMapping("/balance")
+    @Operation(summary = "Get an account balance from Fabrick", description = "Returns balance of saved id")
     public ResponseEntity<BalancePayloadDTO> getBalance()
     {
         var fabrickRes = client.getBalance();
@@ -51,6 +53,7 @@ public class FabrickController {
     }
 
     @GetMapping("/account")
+    @Operation(summary = "Get an account information from Fabrick", description = "Returns base information about Account")
     public ResponseEntity<AccountPayloadDTO> getAccountData()
     {
         var fabrickRes = client.getAccount();
@@ -58,6 +61,7 @@ public class FabrickController {
     }
 
     @GetMapping("/transactions")
+    @Operation(summary = "Get list of transactions from Fabrick", description = "Returns a list of transactions specified by two dates. Second date is optional and would today if not present")
     public ResponseEntity<ListDTO<TransactionDTO>> getTransactions(
             @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate from,
             @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") Optional<LocalDate> to
@@ -70,6 +74,7 @@ public class FabrickController {
     }
 
     @PostMapping("/transfer")
+    @Operation(summary = "Create a money transfer via Fabrick", description = "This request consumes middle ware body to create a request to Fabrick for money transfer creation")
     public ResponseEntity<MoneyTransferDTO> createTransfer(@RequestBody @Valid MiddlewareMoneyTransferBodyDTO dto)
     {
         boolean validated  = dateValidator.validateExecutionDates(dto.getExecutionDate());
@@ -81,12 +86,14 @@ public class FabrickController {
     }
 
     @GetMapping("/failedTransactions")
+    @Operation(summary = "Get list of failed transactions saved locally", description = "list of failed transactions saved locally")
     public ResponseEntity<List<Transfer>> getFailedTransactions()
     {
         return new ResponseEntity<>(service.getAllFailed(), HttpStatusCode.valueOf(200));
     }
 
     @GetMapping("/executedTransactions")
+    @Operation(summary = "Get list of executed transactions saved locally", description = "list of executed transactions saved locally")
     public ResponseEntity<List<Transfer>> getExecutedTransactions()
     {
         return new ResponseEntity<>(service.getAllExecuted(), HttpStatusCode.valueOf(200));
