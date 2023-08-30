@@ -20,7 +20,7 @@ public class MoneyTransferPayloadDTO {
     private String uri;
     private String trn;
     private String description;
-    private LocalDate createdDatetime;
+    private String createdDatetime;
     private LocalDate accountedDatetime;
     private String debtorValueDate;
     private String creditorValueDate;

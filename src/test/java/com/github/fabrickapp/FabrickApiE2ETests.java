@@ -1,9 +1,7 @@
 package com.github.fabrickapp;
 
 import com.github.fabrickapp.client.FabrickClient;
-import com.github.fabrickapp.dtos.fabrickdtos.MoneyTransferRequestDTO;
-import com.github.fabrickapp.dtos.fabrickdtos.reqres.mtransfer.TransferAccountDTO;
-import com.github.fabrickapp.dtos.fabrickdtos.reqres.mtransfer.TransferCreditorDTO;
+import com.github.fabrickapp.dtos.MoneyTransferRequestFactory;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +16,9 @@ class FabrickApiE2ETests {
 
     @Autowired
     FabrickClient client;
+
+    @Autowired
+    MoneyTransferRequestFactory factory;
 
     @Test
     void FabrickApiE2EBalanceTest()
@@ -56,30 +57,16 @@ class FabrickApiE2ETests {
     @Test
     void FabrickApiE2ECreateMoneyTransferTest()
     {
-        var body = getDummyItem();
+        var body = factory.getDummyItem();
         var res = client.createMoneyTransfer(body);
         Assertions.assertAll(
 
                 // can't properly test everything, so status not null should be tested
-                () -> Assertions.assertNotNull(res.getStatus())
+                () -> Assertions
+                        .assertEquals("Il conto beneficiario non puo' essere uguale a conto ordinante, di addebito o di addebito spese",
+                                res.getErrors().get(0).getDescription())
         );
     }
 
-    MoneyTransferRequestDTO getDummyItem()
-    {
-        var body = new MoneyTransferRequestDTO();
-        body.setCreditor(TransferCreditorDTO
-                        .builder()
-                        .name("John Doe")
-                        .account(TransferAccountDTO
-                                .builder()
-                                .accountCode("IT23A0336844430152923804660")
-                                .build())
-                .build());
-        body.setExecutionDate(LocalDate.now());
-        body.setDescription("Some random desc");
-        body.setAmount(12d);
-        body.setCurrency("EUR");
-        return body;
-    }
+
 }

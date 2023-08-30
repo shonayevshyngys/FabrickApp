@@ -1,20 +1,17 @@
 package com.github.fabrickapp.dtos.fabrickdtos;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.fabrickapp.dtos.fabrickdtos.reqres.mtransfer.TransferCreditorDTO;
 import lombok.Data;
-
-import java.time.LocalDate;
+import lombok.ToString;
 
 @Data
+@ToString
 public class MoneyTransferRequestDTO {
-    private TransferCreditorDTO creditor; //required
-    private LocalDate executionDate; //required if inInstant if false
-    private String uri;
-    private String description; //required max140 chars
-    private double amount;
-    private String currency; //required
-    private boolean isUrgent;
-    private boolean isInstant;
-    private String feeType;
-    private String feeAccountId;
+    @JsonProperty public TransferCreditorDTO creditor; //required
+    @JsonProperty public String executionDate; //required if inInstant if false
+    @JsonProperty public String description; //required max140 chars
+    @JsonProperty public double amount;
+    @JsonProperty public String currency; //required
+
 }

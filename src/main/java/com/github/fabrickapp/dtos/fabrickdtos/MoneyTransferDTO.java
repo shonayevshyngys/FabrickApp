@@ -1,8 +1,10 @@
 package com.github.fabrickapp.dtos.fabrickdtos;
 
 import com.github.fabrickapp.dtos.fabrickdtos.reqres.MoneyTransferPayloadDTO;
-import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
-@Data
+@NoArgsConstructor
+@ToString
 public class MoneyTransferDTO extends FabrickBaseDTO<MoneyTransferPayloadDTO> {
 }
