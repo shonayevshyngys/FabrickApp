@@ -1,6 +1,7 @@
 package com.github.fabrickapp.controllers;
 
 import com.github.fabrickapp.client.FabrickClient;
+import com.github.fabrickapp.domain.model.Transfer;
 import com.github.fabrickapp.dtos.MiddlewareMoneyTransferBodyDTO;
 import com.github.fabrickapp.dtos.MoneyTransferRequestFactory;
 import com.github.fabrickapp.dtos.fabrickdtos.MoneyTransferDTO;
@@ -8,8 +9,10 @@ import com.github.fabrickapp.dtos.fabrickdtos.reqres.AccountPayloadDTO;
 import com.github.fabrickapp.dtos.fabrickdtos.reqres.BalancePayloadDTO;
 import com.github.fabrickapp.dtos.fabrickdtos.reqres.ListDTO;
 import com.github.fabrickapp.dtos.fabrickdtos.reqres.transaction.TransactionDTO;
-import com.github.fabrickapp.service.DateValidator;
-import com.github.fabrickapp.service.TransferValidator;
+import com.github.fabrickapp.service.ITransferService;
+import com.github.fabrickapp.service.validators.DateValidator;
+import com.github.fabrickapp.service.validators.TransferValidator;
+import jakarta.validation.Valid;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
@@ -19,24 +22,25 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.validation.Valid;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 @RestController
 public class FabrickController {
 
     final FabrickClient client;
-
     final MoneyTransferRequestFactory factory;
     final DateValidator dateValidator;
     final TransferValidator transferValidator;
+    final ITransferService service;
 
-    public FabrickController(DateValidator dateValidator, FabrickClient client, MoneyTransferRequestFactory factory, TransferValidator transferValidator) {
+    public FabrickController(DateValidator dateValidator, FabrickClient client, MoneyTransferRequestFactory factory, TransferValidator transferValidator, ITransferService service) {
         this.dateValidator = dateValidator;
         this.client = client;
         this.factory = factory;
         this.transferValidator = transferValidator;
+        this.service = service;
     }
 
     @GetMapping("/balance")
@@ -70,19 +74,32 @@ public class FabrickController {
     {
         boolean validated  = dateValidator.validateExecutionDates(dto.getExecutionDate());
         validated &= transferValidator.validateMiddlewareDTO(dto);
-        if (!validated) return new ResponseEntity<>(HttpStatusCode.valueOf(400));
+        if (!validated) throw new RuntimeException("Date or code validation failed");
         var fabrickRes = client.createMoneyTransfer(factory.translateToFabrickDTO(dto));
+        service.save(fabrickRes);
         return new ResponseEntity<>(fabrickRes, HttpStatusCode.valueOf(200));
+    }
 
+    @GetMapping("/failedTransactions")
+    public ResponseEntity<List<Transfer>> getFailedTransactions()
+    {
+        return new ResponseEntity<>(service.getAllFailed(), HttpStatusCode.valueOf(200));
+    }
+
+    @GetMapping("/executedTransactions")
+    public ResponseEntity<List<Transfer>> getExecutedTransactions()
+    {
+        return new ResponseEntity<>(service.getAllExecuted(), HttpStatusCode.valueOf(200));
     }
 
 
     //TODO
     /*
-    1) Return erros on 400
-    2) OpenAPI support
+    1) Return erros on 400 +
+    2) OpenAPI support +
     3) Saving to db
     4) Docker-compose
+    5) Structured logging
      */
 
 

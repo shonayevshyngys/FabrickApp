@@ -10,7 +10,7 @@ import org.springframework.test.context.TestPropertySource;
 
 import java.time.LocalDate;
 
-@SpringBootTest
+@SpringBootTest(classes = {FabrickClient.class,MoneyTransferRequestFactory.class})
 @TestPropertySource("classpath:application.properties")
 class FabrickApiE2ETests {
 

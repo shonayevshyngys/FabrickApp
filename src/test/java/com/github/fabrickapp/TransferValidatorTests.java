@@ -1,10 +1,10 @@
 package com.github.fabrickapp;
 
-import com.github.fabrickapp.service.TransferValidator;
+import com.github.fabrickapp.service.validators.TransferValidator;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class TransferValidatorTests {
+ class TransferValidatorTests {
 
     TransferValidator validator = new TransferValidator();
     @Test
