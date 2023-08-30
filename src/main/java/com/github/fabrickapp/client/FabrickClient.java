@@ -6,6 +6,7 @@ import com.github.fabrickapp.dtos.fabrickdtos.MoneyTransferDTO;
 import com.github.fabrickapp.dtos.fabrickdtos.MoneyTransferRequestDTO;
 import com.github.fabrickapp.dtos.fabrickdtos.TransactionsDTO;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -55,6 +56,7 @@ public class FabrickClient {
         return client.post()
                 .uri("/api/gbs/banking/v4.0/accounts/%d/payments/money-transfers".formatted(accountId))
                 .bodyValue(requestDTO)
+                .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
                 .exchangeToMono(clientResponse -> clientResponse.bodyToMono(MoneyTransferDTO.class)).block();
     }
 }
