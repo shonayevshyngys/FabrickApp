@@ -1,6 +1,6 @@
 package com.github.fabrickapp;
 
-import com.github.fabrickapp.service.DateValidator;
+import com.github.fabrickapp.service.validators.DateValidator;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

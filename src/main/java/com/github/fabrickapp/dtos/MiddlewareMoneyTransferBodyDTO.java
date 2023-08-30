@@ -1,12 +1,12 @@
 package com.github.fabrickapp.dtos;
 
 
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.NonNull;
 import org.springframework.format.annotation.DateTimeFormat;
 
-import javax.validation.constraints.DecimalMin;
-import javax.validation.constraints.Size;
 import java.time.LocalDate;
 
 @Data

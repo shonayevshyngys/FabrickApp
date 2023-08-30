@@ -1,4 +1,4 @@
-package com.github.fabrickapp.service;
+package com.github.fabrickapp.service.validators;
 
 import com.github.fabrickapp.dtos.MiddlewareMoneyTransferBodyDTO;
 import org.springframework.stereotype.Component;
