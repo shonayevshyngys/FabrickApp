@@ -3,15 +3,21 @@ package com.github.fabrickapp.service;
 import com.github.fabrickapp.domain.model.Transfer;
 import com.github.fabrickapp.dtos.fabrickdtos.MoneyTransferDTO;
 import com.github.fabrickapp.service.repo.TransferRepository;
+import lombok.extern.log4j.Log4j2;
+import org.apache.logging.log4j.Marker;
+import org.apache.logging.log4j.MarkerManager;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
+@Log4j2
 public class TransferService implements ITransferService{
 
     final TransferRepository repository;
     final TransferEntityFactory factory;
+
+    private static final Marker TRANSFER_SERVICE_MARKER = MarkerManager.getMarker("Service");
 
     public TransferService(TransferRepository repository, TransferEntityFactory factory) {
         this.repository = repository;
@@ -22,7 +28,9 @@ public class TransferService implements ITransferService{
     @Override
     public Transfer save(MoneyTransferDTO transferDTO) {
         var transfer = factory.createTransferEntityFromDTO(transferDTO);
-        return repository.save(transfer);
+        var dbRes = repository.save(transfer);
+        log.info(TRANSFER_SERVICE_MARKER,"Saved new transfer with id {}", dbRes.getId());
+        return dbRes;
     }
 
     @Override

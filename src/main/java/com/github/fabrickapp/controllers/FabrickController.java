@@ -14,6 +14,9 @@ import com.github.fabrickapp.service.validators.DateValidator;
 import com.github.fabrickapp.service.validators.TransferValidator;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
+import lombok.extern.log4j.Log4j2;
+import org.apache.logging.log4j.Marker;
+import org.apache.logging.log4j.MarkerManager;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
@@ -28,6 +31,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
+@Log4j2
 public class FabrickController {
 
     final FabrickClient client;
@@ -35,6 +39,8 @@ public class FabrickController {
     final DateValidator dateValidator;
     final TransferValidator transferValidator;
     final ITransferService service;
+
+    private static final Marker CONTROLLER_VALIDATION_MARKER = MarkerManager.getMarker("Controller validation");
 
     public FabrickController(DateValidator dateValidator, FabrickClient client, MoneyTransferRequestFactory factory, TransferValidator transferValidator, ITransferService service) {
         this.dateValidator = dateValidator;
@@ -68,7 +74,10 @@ public class FabrickController {
     )
     {
         boolean validated = dateValidator.validateDates(from, to.orElse(LocalDate.now()));
-        if (!validated) return new ResponseEntity<>(HttpStatusCode.valueOf(400));
+        if (!validated) {
+            log.info(CONTROLLER_VALIDATION_MARKER,"Transactions validation failed");
+            return new ResponseEntity<>(HttpStatusCode.valueOf(400));
+        }
         var fabrickRes = client.getTransactions(from, to.orElse(LocalDate.now()));
         return new ResponseEntity<>(fabrickRes.getPayload(), HttpStatusCode.valueOf(200));
     }
@@ -79,7 +88,10 @@ public class FabrickController {
     {
         boolean validated  = dateValidator.validateExecutionDates(dto.getExecutionDate());
         validated &= transferValidator.validateMiddlewareDTO(dto);
-        if (!validated) throw new RuntimeException("Date or code validation failed");
+        if (!validated){
+            log.info(CONTROLLER_VALIDATION_MARKER,"Transfer validation failed");
+            throw new RuntimeException("Date or code validation failed");
+        }
         var fabrickRes = client.createMoneyTransfer(factory.translateToFabrickDTO(dto));
         service.save(fabrickRes);
         return new ResponseEntity<>(fabrickRes, HttpStatusCode.valueOf(200));
@@ -98,17 +110,4 @@ public class FabrickController {
     {
         return new ResponseEntity<>(service.getAllExecuted(), HttpStatusCode.valueOf(200));
     }
-
-
-    //TODO
-    /*
-    1) Return erros on 400 +
-    2) OpenAPI support +
-    3) Saving to db
-    4) Docker-compose
-    5) Structured logging
-     */
-
-
-
 }
