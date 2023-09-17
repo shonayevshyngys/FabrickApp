@@ -17,7 +17,8 @@ services:
       ZOOKEEPER_TICK_TIME: 2000
 
   kafka:
-    image: confluentinc/cp-kafka:latest
+    image: confluentinc/cp-kafka:7.5.0
+    container_name: kafka
     depends_on:
       - zookeeper
     ports:
@@ -29,6 +30,7 @@ services:
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
 
   fabrick-service-container:
     build:
@@ -38,8 +40,22 @@ services:
       - "8000:8000"
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/fabrick_db
+      - kafka_address=kafka:9092
     depends_on:
       - postgres
       - kafka
+      - zookeeper
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+
+  payment-service-continer:
+    build:
+      context: ..
+      dockerfile: ./PaymentProcessor/Dockerfile
+    depends_on:
+      - fabrick-service-container
+      - kafka
+      - zookeeper
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock

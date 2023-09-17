@@ -1,11 +1,11 @@
 package com.github.controllers;
 
 import com.github.common.FabrickClient;
+import com.github.common.dtos.MiddlewareMoneyTransferBodyDTO;
 import com.github.common.dtos.MoneyTransferRequestFactory;
+import com.github.common.dtos.fabrickdtos.MoneyTransferDTO;
 import com.github.common.dtos.fabrickdtos.reqres.AccountPayloadDTO;
 import com.github.common.dtos.fabrickdtos.reqres.BalancePayloadDTO;
-import com.github.common.dtos.fabrickdtos.MoneyTransferDTO;
-import com.github.common.dtos.MiddlewareMoneyTransferBodyDTO;
 import com.github.common.dtos.fabrickdtos.reqres.ListDTO;
 import com.github.common.dtos.fabrickdtos.reqres.transaction.TransactionDTO;
 import com.github.domain.model.Transfer;
@@ -20,6 +20,7 @@ import org.apache.logging.log4j.MarkerManager;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -40,14 +41,18 @@ public class FabrickController {
     final TransferValidator transferValidator;
     final ITransferService service;
 
+    private final KafkaTemplate<String, MoneyTransferDTO> kafkaTemplate;
+
+
     private static final Marker CONTROLLER_VALIDATION_MARKER = MarkerManager.getMarker("Controller validation");
 
-    public FabrickController(DateValidator dateValidator, FabrickClient client, MoneyTransferRequestFactory factory, TransferValidator transferValidator, ITransferService service) {
+    public FabrickController(DateValidator dateValidator, FabrickClient client, MoneyTransferRequestFactory factory, TransferValidator transferValidator, ITransferService service, KafkaTemplate<String, MoneyTransferDTO> kafkaTemplate) {
         this.dateValidator = dateValidator;
         this.client = client;
         this.factory = factory;
         this.transferValidator = transferValidator;
         this.service = service;
+        this.kafkaTemplate = kafkaTemplate;
     }
 
     @GetMapping("/balance")
@@ -93,6 +98,7 @@ public class FabrickController {
             throw new RuntimeException("Date or code validation failed");
         }
         var fabrickRes = client.createMoneyTransfer(factory.translateToFabrickDTO(dto));
+        kafkaTemplate.send("payment", fabrickRes);
         service.save(fabrickRes);
         return new ResponseEntity<>(fabrickRes, HttpStatusCode.valueOf(200));
     }
