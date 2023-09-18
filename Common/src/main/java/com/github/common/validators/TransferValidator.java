@@ -1,4 +1,4 @@
-package com.github.service.validators;
+package com.github.common.validators;
 
 import com.github.common.dtos.MiddlewareMoneyTransferBodyDTO;
 import org.springframework.stereotype.Component;

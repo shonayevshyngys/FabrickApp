@@ -1,7 +1,7 @@
-package com.github.service;
+package com.github.paymentprocessor.service;
 
 import com.github.common.dtos.fabrickdtos.MoneyTransferDTO;
-import com.github.domain.model.Transfer;
+import com.github.paymentprocessor.model.Transfer;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;

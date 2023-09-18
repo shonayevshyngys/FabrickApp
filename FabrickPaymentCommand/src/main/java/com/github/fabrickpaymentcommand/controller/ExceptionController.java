@@ -1,4 +1,4 @@
-package com.github.controllers;
+package com.github.fabrickpaymentcommand.controller;
 
 import com.github.common.dtos.ResponseMessage;
 import lombok.extern.log4j.Log4j2;

@@ -1,14 +1,12 @@
-package com.github.service;
+package com.github.paymentprocessor.service;
 
 import com.github.common.dtos.fabrickdtos.MoneyTransferDTO;
-import com.github.domain.model.Transfer;
-import com.github.service.repo.TransferRepository;
+import com.github.paymentprocessor.model.Transfer;
+import com.github.paymentprocessor.service.repo.TransferRepository;
 import lombok.extern.log4j.Log4j2;
 import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.MarkerManager;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 @Log4j2
@@ -33,13 +31,4 @@ public class TransferService implements ITransferService{
         return dbRes;
     }
 
-    @Override
-    public List<Transfer> getAllExecuted() {
-        return repository.findAllByStatusIsNotNullAndErrorCodeIsNull();
-    }
-
-    @Override
-    public List<Transfer> getAllFailed() {
-        return repository.findAllByStatusIsNotNullAndErrorCodeIsNotNull();
-    }
 }

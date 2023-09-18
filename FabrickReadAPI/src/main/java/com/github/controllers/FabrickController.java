@@ -8,10 +8,8 @@ import com.github.common.dtos.fabrickdtos.reqres.AccountPayloadDTO;
 import com.github.common.dtos.fabrickdtos.reqres.BalancePayloadDTO;
 import com.github.common.dtos.fabrickdtos.reqres.ListDTO;
 import com.github.common.dtos.fabrickdtos.reqres.transaction.TransactionDTO;
-import com.github.domain.model.Transfer;
-import com.github.service.ITransferService;
-import com.github.service.validators.DateValidator;
-import com.github.service.validators.TransferValidator;
+import com.github.common.validators.DateValidator;
+import com.github.common.validators.TransferValidator;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.extern.log4j.Log4j2;
@@ -28,7 +26,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDate;
-import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -39,19 +36,17 @@ public class FabrickController {
     final MoneyTransferRequestFactory factory;
     final DateValidator dateValidator;
     final TransferValidator transferValidator;
-    final ITransferService service;
 
     private final KafkaTemplate<String, MoneyTransferDTO> kafkaTemplate;
 
 
     private static final Marker CONTROLLER_VALIDATION_MARKER = MarkerManager.getMarker("Controller validation");
 
-    public FabrickController(DateValidator dateValidator, FabrickClient client, MoneyTransferRequestFactory factory, TransferValidator transferValidator, ITransferService service, KafkaTemplate<String, MoneyTransferDTO> kafkaTemplate) {
+    public FabrickController(DateValidator dateValidator, FabrickClient client, MoneyTransferRequestFactory factory, TransferValidator transferValidator, KafkaTemplate<String, MoneyTransferDTO> kafkaTemplate) {
         this.dateValidator = dateValidator;
         this.client = client;
         this.factory = factory;
         this.transferValidator = transferValidator;
-        this.service = service;
         this.kafkaTemplate = kafkaTemplate;
     }
 
@@ -72,7 +67,7 @@ public class FabrickController {
     }
 
     @GetMapping("/transactions")
-    @Operation(summary = "Get list of transactions from Fabrick", description = "Returns a list of transactions specified by two dates. Second date is optional and would today if not present")
+    @Operation(summary = "Get list of transactions from Fabrick", description = "Returns a list of transactions specified by two dates. Second date is optional and would be today if not present")
     public ResponseEntity<ListDTO<TransactionDTO>> getTransactions(
             @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate from,
             @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") Optional<LocalDate> to
@@ -99,21 +94,20 @@ public class FabrickController {
         }
         var fabrickRes = client.createMoneyTransfer(factory.translateToFabrickDTO(dto));
         kafkaTemplate.send("payment", fabrickRes);
-        service.save(fabrickRes);
         return new ResponseEntity<>(fabrickRes, HttpStatusCode.valueOf(200));
     }
 
-    @GetMapping("/failedTransactions")
-    @Operation(summary = "Get list of failed transactions saved locally", description = "list of failed transactions saved locally")
-    public ResponseEntity<List<Transfer>> getFailedTransactions()
-    {
-        return new ResponseEntity<>(service.getAllFailed(), HttpStatusCode.valueOf(200));
-    }
-
-    @GetMapping("/executedTransactions")
-    @Operation(summary = "Get list of executed transactions saved locally", description = "list of executed transactions saved locally")
-    public ResponseEntity<List<Transfer>> getExecutedTransactions()
-    {
-        return new ResponseEntity<>(service.getAllExecuted(), HttpStatusCode.valueOf(200));
-    }
+//    @GetMapping("/failedTransactions")
+//    @Operation(summary = "Get list of failed transactions saved locally", description = "list of failed transactions saved locally")
+//    public ResponseEntity<List<Transfer>> getFailedTransactions()
+//    {
+//        return new ResponseEntity<>(service.getAllFailed(), HttpStatusCode.valueOf(200));
+//    }
+//
+//    @GetMapping("/executedTransactions")
+//    @Operation(summary = "Get list of executed transactions saved locally", description = "list of executed transactions saved locally")
+//    public ResponseEntity<List<Transfer>> getExecutedTransactions()
+//    {
+//        return new ResponseEntity<>(service.getAllExecuted(), HttpStatusCode.valueOf(200));
+//    }
 }

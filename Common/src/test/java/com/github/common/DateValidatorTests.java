@@ -1,6 +1,6 @@
-package com.github;
+package com.github.common;
 
-import com.github.service.validators.DateValidator;
+import com.github.common.validators.DateValidator;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

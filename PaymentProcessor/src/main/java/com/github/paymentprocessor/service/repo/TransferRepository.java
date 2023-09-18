@@ -1,6 +1,6 @@
-package com.github.service.repo;
+package com.github.paymentprocessor.service.repo;
 
-import com.github.domain.model.Transfer;
+import com.github.paymentprocessor.model.Transfer;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.repository.CrudRepository;
 

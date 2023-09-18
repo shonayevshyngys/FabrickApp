@@ -1,6 +1,6 @@
-package com.github;
+package com.github.common;
 
-import com.github.service.validators.TransferValidator;
+import com.github.common.validators.TransferValidator;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

@@ -1,5 +1,6 @@
-package com.github.paymentprocessor;
+package com.github.paymentprocessor.kafka;
 
+import com.github.common.dtos.MiddlewareMoneyTransferBodyDTO;
 import com.github.common.dtos.fabrickdtos.MoneyTransferDTO;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
@@ -22,7 +23,7 @@ public class KafkaConsumerConfig {
     @Value(value = "${spring.kafka.consumer.bootstrap-servers}")
     private String bootstrapAddress;
     @Bean
-    public ConsumerFactory<String, MoneyTransferDTO> consumerFactory() {
+    public ConsumerFactory<String, MiddlewareMoneyTransferBodyDTO> consumerFactory() {
         Map<String, Object> props = new HashMap<>();
         props.put(
                 ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,
@@ -35,14 +36,15 @@ public class KafkaConsumerConfig {
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
                 JsonDeserializer.class.getName());
         props.put(JsonDeserializer.VALUE_DEFAULT_TYPE, MoneyTransferDTO.class);
+        props.put(JsonDeserializer.TRUSTED_PACKAGES, "com.github.common.*");
         return new DefaultKafkaConsumerFactory<>(props);
     }
 
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, MoneyTransferDTO>
+    public ConcurrentKafkaListenerContainerFactory<String, MiddlewareMoneyTransferBodyDTO>
     kafkaListenerContainerFactory() {
 
-        ConcurrentKafkaListenerContainerFactory<String, MoneyTransferDTO> factory =
+        ConcurrentKafkaListenerContainerFactory<String, MiddlewareMoneyTransferBodyDTO> factory =
                 new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory());
         return factory;

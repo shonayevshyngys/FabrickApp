@@ -1,6 +1,6 @@
-package com.github.kafka;
+package com.github.fabrickpaymentcommand.kafka;
 
-import com.github.common.dtos.fabrickdtos.MoneyTransferDTO;
+import com.github.common.dtos.MiddlewareMoneyTransferBodyDTO;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,7 +21,7 @@ public class KafkaPaymentProducerConfig {
     @Value("${spring.kafka.producer.bootstrap-servers}")
     private String kafkaBroker;
     @Bean
-    public ProducerFactory<String, MoneyTransferDTO> producerFactory() {
+    public ProducerFactory<String, MiddlewareMoneyTransferBodyDTO> producerFactory() {
         Map<String, Object> producerProps = new HashMap<>();
         producerProps.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaBroker);
 
@@ -32,7 +32,7 @@ public class KafkaPaymentProducerConfig {
         return new DefaultKafkaProducerFactory<>(producerProps);
     }
     @Bean
-    public KafkaTemplate<String, MoneyTransferDTO> kafkaTemplate() {
+    public KafkaTemplate<String, MiddlewareMoneyTransferBodyDTO> kafkaTemplate() {
         return new KafkaTemplate<>(producerFactory());
     }
 }

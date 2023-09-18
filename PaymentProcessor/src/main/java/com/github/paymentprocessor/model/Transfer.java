@@ -1,4 +1,5 @@
-package com.github.domain.model;
+package com.github.paymentprocessor.model;
+
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
