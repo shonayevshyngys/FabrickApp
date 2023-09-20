@@ -1,3 +1,5 @@
+server:
+  port: 9000
 spring:
   kafka:
     bootstrap-servers: kafka:9092
@@ -10,6 +12,16 @@ spring:
           binder:
             configuration:
               spring.json.use.type.headers: false
+          bindings:
+            successfulPayments-in-0:
+              consumer:
+                materializedAs: succ-store
+            declinedPayments-in-0:
+              consumer:
+                materializedAs: decl-store
+            failedPayment-in-0:
+              consumer:
+                materializedAs: fail-store
       bindings:
         successfulPayments-in-0:
           destination: successfulPayments

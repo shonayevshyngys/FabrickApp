@@ -1,38 +1,45 @@
 package com.github.fabrickpaymentquery.controller;
 
 import com.github.fabrickpaymentquery.model.Transfer;
+import com.github.fabrickpaymentquery.service.QueryService;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.extern.log4j.Log4j2;
-import org.apache.kafka.streams.KeyValue;
-import org.apache.kafka.streams.state.KeyValueIterator;
-import org.apache.kafka.streams.state.QueryableStoreTypes;
-import org.apache.kafka.streams.state.ReadOnlyKeyValueStore;
-import org.springframework.cloud.stream.binder.kafka.streams.InteractiveQueryService;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.Map;
 
 @RestController
 @Log4j2
 @ComponentScan("com.github.common")
 public class FabrickPaymentQueryController {
 
-    private final InteractiveQueryService interactiveQueryService;
+    private final QueryService service;
 
-    public FabrickPaymentQueryController(InteractiveQueryService interactiveQueryService) {
-        this.interactiveQueryService = interactiveQueryService;
+    public FabrickPaymentQueryController(QueryService service) {
+        this.service = service;
     }
 
     @GetMapping("/declinedTransactions")
-    public ResponseEntity<String> getDeclinedTransfers()
+    @Operation(summary = "Get list of declined transactions reconstructed from Kafka", description = "List of declined (api call returned error) transactions")
+    public ResponseEntity<Map<String,Transfer>> getDeclinedTransfers()
     {
-        ReadOnlyKeyValueStore<String, Transfer> store = interactiveQueryService.getQueryableStore("decl-store", QueryableStoreTypes.keyValueStore());
-        KeyValueIterator<String , Transfer> iterator = store.all();
+        return ResponseEntity.ok(service.getQuery("decl-store"));
+    }
 
-        while (iterator.hasNext()) {
-            KeyValue<String, Transfer> entry = iterator.next();
-            log.info(entry.key + " + " + entry.value.getErrorDesc());
-        }
-        return ResponseEntity.ok("Kek");
+    @GetMapping("/successfulTransactions")
+    @Operation(summary = "Get list of successful transactions reconstructed from Kafka", description = "List of successful transactions")
+    public ResponseEntity<Map<String,Transfer>> getSuccessfulTransfers()
+    {
+        return ResponseEntity.ok(service.getQuery("succ-store"));
+    }
+
+    @GetMapping("/failedTransactions")
+    @Operation(summary = "Get list of successful transactions reconstructed from Kafka", description = "List of failed (internal error) transactions")
+    public ResponseEntity<Map<String,Transfer>> getFailedTransfers()
+    {
+        return ResponseEntity.ok(service.getQuery("fail-store"));
     }
 }

@@ -1,9 +1,10 @@
 package com.github.fabrickpaymentcommand.controller;
 
 import com.github.common.dtos.MiddlewareMoneyTransferBodyDTO;
+import com.github.common.dtos.ResponseMessage;
 import com.github.common.validators.DateValidator;
 import com.github.common.validators.TransferValidator;
-import com.github.common.dtos.ResponseMessage;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.extern.log4j.Log4j2;
 import org.apache.logging.log4j.Marker;
@@ -36,6 +37,7 @@ public class FabrickPaymentCommandController {
     }
 
     @PostMapping("/transfer")
+    @Operation(summary = "Sends payment to payment processor", description = "This request consumes middle ware body to create a request to Fabrick for money transfer creation")
     public ResponseEntity<ResponseMessage> createTransfer(@RequestBody @Valid MiddlewareMoneyTransferBodyDTO dto)
     {
         boolean validated  = dateValidator.validateExecutionDates(dto.getExecutionDate());
