@@ -1,7 +1,6 @@
 package com.github.controllers;
 
 import com.github.common.FabrickClient;
-import com.github.common.dtos.MiddlewareMoneyTransferBodyDTO;
 import com.github.common.dtos.MoneyTransferRequestFactory;
 import com.github.common.dtos.fabrickdtos.MoneyTransferDTO;
 import com.github.common.dtos.fabrickdtos.reqres.AccountPayloadDTO;
@@ -11,7 +10,6 @@ import com.github.common.dtos.fabrickdtos.reqres.transaction.TransactionDTO;
 import com.github.common.validators.DateValidator;
 import com.github.common.validators.TransferValidator;
 import io.swagger.v3.oas.annotations.Operation;
-import jakarta.validation.Valid;
 import lombok.extern.log4j.Log4j2;
 import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.MarkerManager;
@@ -20,8 +18,6 @@ import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -82,20 +78,6 @@ public class FabrickController {
         return new ResponseEntity<>(fabrickRes.getPayload(), HttpStatusCode.valueOf(200));
     }
 
-    @PostMapping("/transfer")
-    @Operation(summary = "Create a money transfer via Fabrick", description = "This request consumes middle ware body to create a request to Fabrick for money transfer creation")
-    public ResponseEntity<MoneyTransferDTO> createTransfer(@RequestBody @Valid MiddlewareMoneyTransferBodyDTO dto)
-    {
-        boolean validated  = dateValidator.validateExecutionDates(dto.getExecutionDate());
-        validated &= transferValidator.validateMiddlewareDTO(dto);
-        if (!validated){
-            log.info(CONTROLLER_VALIDATION_MARKER,"Transfer validation failed");
-            throw new RuntimeException("Date or code validation failed");
-        }
-        var fabrickRes = client.createMoneyTransfer(factory.translateToFabrickDTO(dto));
-        kafkaTemplate.send("payment", fabrickRes);
-        return new ResponseEntity<>(fabrickRes, HttpStatusCode.valueOf(200));
-    }
 
 //    @GetMapping("/failedTransactions")
 //    @Operation(summary = "Get list of failed transactions saved locally", description = "list of failed transactions saved locally")

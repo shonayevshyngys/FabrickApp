@@ -1,0 +1,31 @@
+spring:
+  kafka:
+    bootstrap-servers: kafka:9092
+  jpa:
+    database: POSTGRESQL
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: create
+  datasource:
+    hikari:
+      username: postgres
+      password: postgres
+  cloud:
+    stream:
+      kafka:
+        streams:
+          binder:
+            configuration:
+              spring.json.use.type.headers: false
+      bindings:
+        process-in-0:
+          destination: payment
+          group: paymentProcessorGroup
+        process-out-0:
+          destination: successfulPayments
+        process-out-1:
+          destination: failedPayments
+        process-out-2:
+          destination: declinedPayments
+
+apikey: FXOVVXXHVCPVPBZXIJOBGUGSKHDNFRRQJP

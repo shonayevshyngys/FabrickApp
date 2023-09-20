@@ -1,9 +1,10 @@
 package com.github.fabrickpaymentcommand.controller;
 
 import com.github.common.dtos.MiddlewareMoneyTransferBodyDTO;
+import com.github.common.dtos.ResponseMessage;
 import com.github.common.validators.DateValidator;
 import com.github.common.validators.TransferValidator;
-import com.github.common.dtos.ResponseMessage;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.extern.log4j.Log4j2;
 import org.apache.logging.log4j.Marker;
@@ -15,6 +16,8 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.UUID;
 
 @RestController
 @Log4j2
@@ -34,6 +37,7 @@ public class FabrickPaymentCommandController {
     }
 
     @PostMapping("/transfer")
+    @Operation(summary = "Sends payment to payment processor", description = "This request consumes middle ware body to create a request to Fabrick for money transfer creation")
     public ResponseEntity<ResponseMessage> createTransfer(@RequestBody @Valid MiddlewareMoneyTransferBodyDTO dto)
     {
         boolean validated  = dateValidator.validateExecutionDates(dto.getExecutionDate());
@@ -42,11 +46,11 @@ public class FabrickPaymentCommandController {
             log.info(CONTROLLER_VALIDATION_MARKER,"Transfer validation failed");
             throw new RuntimeException("Date or code validation failed");
         }
-        kafkaTemplate.send("payment", dto);
+        kafkaTemplate.send("payment", UUID.randomUUID().toString(), dto);
         var res = ResponseMessage.builder()
                 .code("201")
                 .result("Your payment request is pending")
                 .build();
-        return new ResponseEntity<>(res, HttpStatusCode.valueOf(200));
+        return new ResponseEntity<>(res, HttpStatusCode.valueOf(201));
     }
 }
