@@ -1,0 +1,49 @@
+spring:
+  main:
+    web-application-type: reactive
+  cloud:
+    gateway:
+      routes:
+        - id: query
+          uri: http://localhost:9000
+          predicates:
+            - Path=/query/**
+        - id: command
+          uri: http://localhost:7000
+          predicates:
+            - Path=/command/**
+        - id: api
+          uri: http://localhost:8000
+          predicates:
+            - Path=/api/**
+        - id: openapi
+          uri: http://localhost:${server.port}/
+          predicates:
+            - Path=/api-docs/**
+
+server:
+  port: 5000
+  forward-headers-strategy: framework
+
+springdoc:
+  api-docs:
+    groups:
+      enabled: true
+    enabled: true
+  group-configs:
+    - group: query
+      paths-to-match:
+        - /query/**
+      display-name: Query Service
+    - group: command
+      paths-to-match:
+        - /command/**
+      display-name: Command Service
+  swagger-ui:
+    config-url: api-docs/swagger-config
+    url: api-docs
+    urls:
+      - url: http://localhost:9000/query/api-docs
+        name: Service 1
+      - url: http://localhost:7000/command/api-docs
+        name: Service 2
