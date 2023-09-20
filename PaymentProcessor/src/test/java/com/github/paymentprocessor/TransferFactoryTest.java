@@ -29,7 +29,7 @@ class TransferFactoryTest {
 
         dto.setPayload(null);
 
-        Transfer transfer = factory.createTransferEntityFromDTO(dto);
+        Transfer transfer = factory.createTransferEntityFromDTO(null, dto);
 
         Assertions.assertAll(
 

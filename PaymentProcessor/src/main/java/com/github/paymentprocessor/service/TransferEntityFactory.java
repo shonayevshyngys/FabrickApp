@@ -8,10 +8,11 @@ import java.time.LocalDate;
 
 @Component
 public class TransferEntityFactory {
-    public Transfer createTransferEntityFromDTO(MoneyTransferDTO dto) {
+    public Transfer createTransferEntityFromDTO(String uuid, MoneyTransferDTO dto) {
         Transfer transfer = new Transfer();
         transfer.setStatus(dto.getStatus());
         transfer.setDate(LocalDate.now());
+        transfer.setUuid(uuid);
 
         if (dto.getStatus().equals("OK")) {
             var payload = dto.getPayload();

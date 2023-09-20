@@ -6,11 +6,13 @@ import com.github.paymentprocessor.service.repo.TransferRepository;
 import lombok.extern.log4j.Log4j2;
 import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.MarkerManager;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 @Service
+@Component
 @Log4j2
-public class TransferService implements ITransferService{
+public class TransferService{
 
     final TransferRepository repository;
     final TransferEntityFactory factory;
@@ -23,9 +25,8 @@ public class TransferService implements ITransferService{
     }
 
 
-    @Override
-    public Transfer save(MoneyTransferDTO transferDTO) {
-        var transfer = factory.createTransferEntityFromDTO(transferDTO);
+    public Transfer save(String uuid, MoneyTransferDTO transferDTO) {
+        var transfer = factory.createTransferEntityFromDTO(uuid, transferDTO);
         var dbRes = repository.save(transfer);
         log.info(TRANSFER_SERVICE_MARKER,"Saved new transfer with id {}", dbRes.getId());
         return dbRes;

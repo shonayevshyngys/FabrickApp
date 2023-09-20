@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.UUID;
+
 @RestController
 @Log4j2
 @ComponentScan("com.github.common")
@@ -42,11 +44,11 @@ public class FabrickPaymentCommandController {
             log.info(CONTROLLER_VALIDATION_MARKER,"Transfer validation failed");
             throw new RuntimeException("Date or code validation failed");
         }
-        kafkaTemplate.send("payment", dto);
+        kafkaTemplate.send("payment", UUID.randomUUID().toString(), dto);
         var res = ResponseMessage.builder()
                 .code("201")
                 .result("Your payment request is pending")
                 .build();
-        return new ResponseEntity<>(res, HttpStatusCode.valueOf(200));
+        return new ResponseEntity<>(res, HttpStatusCode.valueOf(201));
     }
 }
