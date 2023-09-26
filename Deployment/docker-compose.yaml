@@ -82,3 +82,16 @@ services:
       - zookeeper
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+
+  open-api-container:
+    build:
+      context: ..
+      dockerfile: ./FabrickGateway/Dockerfile
+    ports:
+      - "5000:5000"
+    depends_on:
+      - fabrick-service-container
+      - payment-command-container
+      - payment-query-container
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock

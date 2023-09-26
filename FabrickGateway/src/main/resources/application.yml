@@ -4,46 +4,41 @@ spring:
   cloud:
     gateway:
       routes:
-        - id: query
-          uri: http://localhost:9000
+        - id: query-service
+          uri: http://payment-query-container:9000
           predicates:
             - Path=/query/**
-        - id: command
-          uri: http://localhost:7000
+          filters:
+            - RewritePath=/query/(?<path>.*), /$\{path}
+        - id: command-service
+          uri: http://payment-command-container:7000
           predicates:
             - Path=/command/**
-        - id: api
-          uri: http://localhost:8000
+          filters:
+            - RewritePath=/command/(?<path>.*), /$\{path}
+        - id: api-service
+          uri: http://fabrick-service-container:8000
           predicates:
             - Path=/api/**
+          filters:
+            - RewritePath=/api/(?<path>.*), /$\{path}
         - id: openapi
-          uri: http://localhost:${server.port}/
+          uri: http://localhost:${server.port}
           predicates:
-            - Path=/api-docs/**
+            - Path=/v3/api-docs/**
+          filters:
+            - RewritePath=/v3/api-docs/(?<path>.*), /$\{path}/v3/api-docs
 
 server:
   port: 5000
   forward-headers-strategy: framework
 
 springdoc:
-  api-docs:
-    groups:
-      enabled: true
-    enabled: true
-  group-configs:
-    - group: query
-      paths-to-match:
-        - /query/**
-      display-name: Query Service
-    - group: command
-      paths-to-match:
-        - /command/**
-      display-name: Command Service
   swagger-ui:
-    config-url: api-docs/swagger-config
-    url: api-docs
     urls:
-      - url: http://localhost:9000/query/api-docs
-        name: Service 1
-      - url: http://localhost:7000/command/api-docs
-        name: Service 2
+      - url: /v3/api-docs/query
+        name: query
+      - url: /v3/api-docs/command
+        name: command
+      - url: /v3/api-docs/api
+        name: api

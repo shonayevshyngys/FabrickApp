@@ -1,16 +1,14 @@
 server:
   port: 9000
-  servlet:
-    context-path: /query
 springdoc:
   api-docs:
-    path: /api-docs
+    path: /v3/api-docs
 spring:
   kafka:
     bootstrap-servers: kafka:9092
   cloud:
     function:
-      definition: successfulPayments;declinedPayments;failedPayment
+      definition: successfulPayments;declinedPayments;failedPayments
     stream:
       kafka:
         streams:
@@ -18,15 +16,16 @@ spring:
             configuration:
               spring.json.use.type.headers: false
           bindings:
+            failedPayments-in-0:
+              consumer:
+                materializedAs: fail-store
             successfulPayments-in-0:
               consumer:
                 materializedAs: succ-store
             declinedPayments-in-0:
               consumer:
                 materializedAs: decl-store
-            failedPayments-in-0:
-              consumer:
-                materializedAs: fail-store
+
       bindings:
         successfulPayments-in-0:
           destination: successfulPayments
