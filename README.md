@@ -19,6 +19,9 @@ Example of creation of transfer with applicable values (Date should be today or 
 ![Transfer example](./Deployment/transfer.png)
 
 ## Architecture
+
+This project follows hybrid CQRS pattern with command and query services.
+
 ![Architechture](./Deployment/arch.png)
 
 Three services have open endpoints:
