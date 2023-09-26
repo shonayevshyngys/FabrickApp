@@ -5,11 +5,13 @@ import com.github.common.dtos.fabrickdtos.reqres.mtransfer.TransferCreditorDTO;
 import com.github.common.dtos.fabrickdtos.reqres.mtransfer.TransferDebtorDTO;
 import com.github.common.dtos.fabrickdtos.reqres.mtransfer.TransferFeeDTO;
 import lombok.Data;
+import lombok.ToString;
 
 import java.time.LocalDate;
 import java.util.List;
 
 @Data
+@ToString
 public class MoneyTransferPayloadDTO {
     private long moneyTransferId;
     private String status;
@@ -21,7 +23,7 @@ public class MoneyTransferPayloadDTO {
     private String trn;
     private String description;
     private String createdDatetime;
-    private LocalDate accountedDatetime;
+    private String accountedDatetime;
     private String debtorValueDate;
     private String creditorValueDate;
     private TransferAmountDTO amount;

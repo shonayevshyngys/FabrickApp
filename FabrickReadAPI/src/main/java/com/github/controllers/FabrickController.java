@@ -2,7 +2,6 @@ package com.github.controllers;
 
 import com.github.common.FabrickClient;
 import com.github.common.dtos.MoneyTransferRequestFactory;
-import com.github.common.dtos.fabrickdtos.MoneyTransferDTO;
 import com.github.common.dtos.fabrickdtos.reqres.AccountPayloadDTO;
 import com.github.common.dtos.fabrickdtos.reqres.BalancePayloadDTO;
 import com.github.common.dtos.fabrickdtos.reqres.ListDTO;
@@ -16,7 +15,6 @@ import org.apache.logging.log4j.MarkerManager;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
-import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -33,17 +31,14 @@ public class FabrickController {
     final DateValidator dateValidator;
     final TransferValidator transferValidator;
 
-    private final KafkaTemplate<String, MoneyTransferDTO> kafkaTemplate;
-
 
     private static final Marker CONTROLLER_VALIDATION_MARKER = MarkerManager.getMarker("Controller validation");
 
-    public FabrickController(DateValidator dateValidator, FabrickClient client, MoneyTransferRequestFactory factory, TransferValidator transferValidator, KafkaTemplate<String, MoneyTransferDTO> kafkaTemplate) {
+    public FabrickController(DateValidator dateValidator, FabrickClient client, MoneyTransferRequestFactory factory, TransferValidator transferValidator) {
         this.dateValidator = dateValidator;
         this.client = client;
         this.factory = factory;
         this.transferValidator = transferValidator;
-        this.kafkaTemplate = kafkaTemplate;
     }
 
     @GetMapping("/balance")

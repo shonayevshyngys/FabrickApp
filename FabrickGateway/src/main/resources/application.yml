@@ -1,0 +1,44 @@
+spring:
+  main:
+    web-application-type: reactive
+  cloud:
+    gateway:
+      routes:
+        - id: query-service
+          uri: http://payment-query-container:9000
+          predicates:
+            - Path=/query/**
+          filters:
+            - RewritePath=/query/(?<path>.*), /$\{path}
+        - id: command-service
+          uri: http://payment-command-container:7000
+          predicates:
+            - Path=/command/**
+          filters:
+            - RewritePath=/command/(?<path>.*), /$\{path}
+        - id: api-service
+          uri: http://fabrick-service-container:8000
+          predicates:
+            - Path=/api/**
+          filters:
+            - RewritePath=/api/(?<path>.*), /$\{path}
+        - id: openapi
+          uri: http://localhost:${server.port}
+          predicates:
+            - Path=/v3/api-docs/**
+          filters:
+            - RewritePath=/v3/api-docs/(?<path>.*), /$\{path}/v3/api-docs
+
+server:
+  port: 5000
+  forward-headers-strategy: framework
+
+springdoc:
+  swagger-ui:
+    urls:
+      - url: /v3/api-docs/query
+        name: query
+      - url: /v3/api-docs/command
+        name: command
+      - url: /v3/api-docs/api
+        name: api
