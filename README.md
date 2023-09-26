@@ -5,7 +5,7 @@ Fabrick take home assignment
 Docker and Docker-Compose\
 Maven\
 Bash\
-Free port 5432, 9092, 5000
+Free port 5432, 6379, 9092, 5000
 
 ## Running the application
 If you are on linux then you can run script **start.sh**.
