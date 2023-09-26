@@ -15,6 +15,8 @@ Or you can mvn clean install root folder and then run docker compose on ./Deploy
 You can find the swagger by this link (after you run the applicaiton of course)
 http://localhost:5000/swagger-ui.html
 
+In swagger you also can navigate between different definitions in top right corner.
+
 Example of creation of transfer with applicable values (Date should be today or later) 
 ![Transfer example](./Deployment/transfer.png)
 
