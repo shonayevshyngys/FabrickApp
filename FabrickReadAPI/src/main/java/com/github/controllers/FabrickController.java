@@ -1,6 +1,5 @@
 package com.github.controllers;
 
-import com.github.common.FabrickClient;
 import com.github.common.dtos.MoneyTransferRequestFactory;
 import com.github.common.dtos.fabrickdtos.reqres.AccountPayloadDTO;
 import com.github.common.dtos.fabrickdtos.reqres.BalancePayloadDTO;
@@ -8,10 +7,12 @@ import com.github.common.dtos.fabrickdtos.reqres.ListDTO;
 import com.github.common.dtos.fabrickdtos.reqres.transaction.TransactionDTO;
 import com.github.common.validators.DateValidator;
 import com.github.common.validators.TransferValidator;
+import com.github.service.FabrickService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.extern.log4j.Log4j2;
 import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.MarkerManager;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
@@ -26,7 +27,7 @@ import java.util.Optional;
 @Log4j2
 public class FabrickController {
 
-    final FabrickClient client;
+    final FabrickService service;
     final MoneyTransferRequestFactory factory;
     final DateValidator dateValidator;
     final TransferValidator transferValidator;
@@ -34,9 +35,9 @@ public class FabrickController {
 
     private static final Marker CONTROLLER_VALIDATION_MARKER = MarkerManager.getMarker("Controller validation");
 
-    public FabrickController(DateValidator dateValidator, FabrickClient client, MoneyTransferRequestFactory factory, TransferValidator transferValidator) {
+    public FabrickController(FabrickService service, DateValidator dateValidator, MoneyTransferRequestFactory factory, TransferValidator transferValidator) {
+        this.service = service;
         this.dateValidator = dateValidator;
-        this.client = client;
         this.factory = factory;
         this.transferValidator = transferValidator;
     }
@@ -45,7 +46,7 @@ public class FabrickController {
     @Operation(summary = "Get an account balance from Fabrick", description = "Returns balance of saved id")
     public ResponseEntity<BalancePayloadDTO> getBalance()
     {
-        var fabrickRes = client.getBalance();
+        var fabrickRes = service.getBalance();
         return new ResponseEntity<>(fabrickRes.getPayload(), HttpStatusCode.valueOf(200));
     }
 
@@ -53,7 +54,7 @@ public class FabrickController {
     @Operation(summary = "Get an account information from Fabrick", description = "Returns base information about Account")
     public ResponseEntity<AccountPayloadDTO> getAccountData()
     {
-        var fabrickRes = client.getAccount();
+        var fabrickRes = service.getAccount();
         return new ResponseEntity<>(fabrickRes.getPayload(), HttpStatusCode.valueOf(200));
     }
 
@@ -69,22 +70,9 @@ public class FabrickController {
             log.info(CONTROLLER_VALIDATION_MARKER,"Transactions validation failed");
             return new ResponseEntity<>(HttpStatusCode.valueOf(400));
         }
-        var fabrickRes = client.getTransactions(from, to.orElse(LocalDate.now()));
+        var fabrickRes = service.getTransactions(from, to.orElse(LocalDate.now()));
         return new ResponseEntity<>(fabrickRes.getPayload(), HttpStatusCode.valueOf(200));
     }
 
 
-//    @GetMapping("/failedTransactions")
-//    @Operation(summary = "Get list of failed transactions saved locally", description = "list of failed transactions saved locally")
-//    public ResponseEntity<List<Transfer>> getFailedTransactions()
-//    {
-//        return new ResponseEntity<>(service.getAllFailed(), HttpStatusCode.valueOf(200));
-//    }
-//
-//    @GetMapping("/executedTransactions")
-//    @Operation(summary = "Get list of executed transactions saved locally", description = "list of executed transactions saved locally")
-//    public ResponseEntity<List<Transfer>> getExecutedTransactions()
-//    {
-//        return new ResponseEntity<>(service.getAllExecuted(), HttpStatusCode.valueOf(200));
-//    }
 }
